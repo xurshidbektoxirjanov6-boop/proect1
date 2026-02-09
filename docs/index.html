@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktiv Raqamli Pianino</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a9b7c6;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .piano-container {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls-container {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ff7e5f;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 126, 95, 0.3);
+        }
+
+        .piano {
+            display: flex;
+            position: relative;
+            height: 200px;
+            margin: 30px 0;
+            user-select: none;
+        }
+
+        .key {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .white-key {
+            flex: 1;
+            background: linear-gradient(to bottom, #fff 0%, #f9f9f9 100%);
+            border: 1px solid #ccc;
+            border-radius: 0 0 8px 8px;
+            color: #333;
+            height: 100%;
+            z-index: 1;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .white-key:hover {
+            background: linear-gradient(to bottom, #f0f0f0 0%, #e9e9e9 100%);
+        }
+
+        .white-key.active {
+            background: linear-gradient(to bottom, #ffd8d8 0%, #ffb8b8 100%);
+            transform: translateY(5px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .black-key {
+            width: 60%;
+            height: 65%;
+            background: linear-gradient(to bottom, #333 0%, #000 100%);
+            border-radius: 0 0 6px 6px;
+            color: #fff;
+            margin-left: -30%;
+            margin-right: -30%;
+            z-index: 2;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .black-key:hover {
+            background: linear-gradient(to bottom, #444 0%, #222 100%);
+        }
+
+        .black-key.active {
+            background: linear-gradient(to bottom, #ff7e5f 0%, #ff5a35 100%);
+            transform: translateY(3px);
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        .key-number {
+            position: absolute;
+            bottom: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .black-key .key-number {
+            color: #aaa;
+        }
+
+        .key-name {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .control-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(255, 126, 95, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(255, 65, 108, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .songs-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .song-item {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #ff7e5f;
+        }
+
+        .song-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-5px);
+        }
+
+        .song-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #feb47b;
+        }
+
+        .song-description {
+            font-size: 0.9rem;
+            color: #a9b7c6;
+        }
+
+        .number-piano {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .number-key {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .number-key:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .number-key.active {
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            transform: scale(0.95);
+        }
+
+        .recording-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .recording-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #ff416c;
+            margin-right: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .instructions h3 {
+            color: #feb47b;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            color: #a9b7c6;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #11998e;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .key-number-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .number-piano {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-piano-keyboard"></i> Raqamli Pianino</h1>
+            <p class="subtitle">Pianino chalishni o'rganing, musiqani yozib oling va Telegramga yuboring</p>
+        </header>
+
+        <div class="main-content">
+            <div class="piano-container">
+                <h2 class="section-title"><i class="fas fa-sliders-h"></i> Asosiy Pianino</h2>
+                <div class="piano" id="piano">
+                    <!-- Piano klaviaturalari JavaScript orqali qo'shiladi -->
+                </div>
+
+                <div class="control-buttons">
+                    <button class="btn btn-primary" id="recordBtn">
+                        <i class="fas fa-circle"></i> Yozib Olishni Boshlash
+                    </button>
+                    <button class="btn btn-danger" id="stopRecordBtn" disabled>
+                        <i class="fas fa-stop"></i> Yozib Olishni To'xtatish
+                    </button>
+                    <button class="btn btn-success" id="sendToTelegramBtn" disabled>
+                        <i class="fab fa-telegram"></i> Telegramga Yuborish
+                    </button>
+                </div>
+
+                <div class="recording-status" id="recordingStatus" style="display: none;">
+                    <div class="recording-indicator"></div>
+                    <span>Yozib olish davom etmoqda... 15 soniya qoldi</span>
+                </div>
+
+                <div class="key-number-display" id="keyNumberDisplay">
+                    Oxirgi tugma: -
+                </div>
+            </div>
+
+            <div class="controls-container">
+                <h2 class="section-title"><i class="fas fa-music"></i> Musiqalarni O'rganish</h2>
+                <div class="songs-list" id="songsList">
+                    <!-- Musiqalar ro'yxati JavaScript orqali qo'shiladi -->
+                </div>
+
+                <h2 class="section-title"><i class="fas fa-keyboard"></i> Raqamlar Pianinosi</h2>
+                <p style="margin-bottom: 15px; color: #a9b7c6;">Raqamlarni bosing yoki klaviaturadan foydalaning (1-5,
+                    q-s, a-f, z-v)</p>
+                <div class="number-piano" id="numberPiano">
+                    <!-- Raqamli pianino tugmalari JavaScript orqali qo'shiladi -->
+                </div>
+
+                <div class="control-buttons" style="margin-top: 25px;">
+                    <button class="btn btn-secondary" id="muteBtn">
+                        <i class="fas fa-volume-mute"></i> Musiqani O'chirish
+                    </button>
+                    <button class="btn btn-secondary" id="unmuteBtn">
+                        <i class="fas fa-volume-up"></i> Musiqani Yoqish
+                    </button>
+                    <button class="btn btn-secondary" id="resetBtn">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Qanday Foydalanish</h3>
+            <ul>
+                <li>Pianinoni chalish uchun sichqoncha yoki klaviaturadan foydalaning (A, S, D, F, G, H, J, W, E, T, Y,
+                    U klavishlar)</li>
+                <li>Musiqani yozib olish uchun "Yozib Olishni Boshlash" tugmasini bosing (maksimal 30 soniya)</li>
+                <li>Yozib olingan musiqani Telegramga yuborish uchun "Telegramga Yuborish" tugmasini bosing</li>
+                <li>Mashhur qo'shiqlarni o'rganish uchun yuqoridagi ro'yxatdan birini tanlang</li>
+                <li>Raqamli pianino yordamida 1-5, q-s, a-f, z-v raqamlarini bosing</li>
+                <li>Barcha ovozni o'chirish/yoqish uchun mos tugmalardan foydalaning</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <span id="notificationText">Xabar bu yerda ko'rsatiladi</span>
+    </div>
+
+    <script>
+        // Audio kontekstini yaratish
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let isRecording = false;
+        let recordedNotes = [];
+        let startRecordingTime;
+        let recordingTimer;
+        let isMuted = false;
+        let activeSong = null;
+        let activeSongNotes = [];
+        let currentSongIndex = 0;
+
+        // Piano notalari
+        const notes = [
+            { key: 'A', note: 'C4', frequency: 261.63, type: 'white' },
+            { key: 'W', note: 'C#4', frequency: 277.18, type: 'black' },
+            { key: 'S', note: 'D4', frequency: 293.66, type: 'white' },
+            { key: 'E', note: 'D#4', frequency: 311.13, type: 'black' },
+            { key: 'D', note: 'E4', frequency: 329.63, type: 'white' },
+            { key: 'F', note: 'F4', frequency: 349.23, type: 'white' },
+            { key: 'T', note: 'F#4', frequency: 369.99, type: 'black' },
+            { key: 'G', note: 'G4', frequency: 392.00, type: 'white' },
+            { key: 'Y', note: 'G#4', frequency: 415.30, type: 'black' },
+            { key: 'H', note: 'A4', frequency: 440.00, type: 'white' },
+            { key: 'U', note: 'A#4', frequency: 466.16, type: 'black' },
+            { key: 'J', note: 'B4', frequency: 493.88, type: 'white' }
+        ];
+
+        // Raqamli pianino uchun notalar
+        const numberNotes = [
+            { number: '1', note: 'C4', frequency: 261.63 },
+            { number: '2', note: 'D4', frequency: 293.66 },
+            { number: '3', note: 'E4', frequency: 329.63 },
+            { number: '4', note: 'F4', frequency: 349.23 },
+            { number: '5', note: 'G4', frequency: 392.00 },
+            { number: 'q', note: 'A4', frequency: 440.00 },
+            { number: 'w', note: 'B4', frequency: 493.88 },
+            { number: 'e', note: 'C5', frequency: 523.25 },
+            { number: 'r', note: 'D5', frequency: 587.33 },
+            { number: 't', note: 'E5', frequency: 659.25 },
+            { number: 'a', note: 'F5', frequency: 698.46 },
+            { number: 's', note: 'G5', frequency: 783.99 },
+            { number: 'd', note: 'A5', frequency: 880.00 },
+            { number: 'f', note: 'B5', frequency: 987.77 },
+            { number: 'z', note: 'C6', frequency: 1046.50 },
+            { number: 'x', note: 'D6', frequency: 1174.66 },
+            { number: 'c', note: 'E6', frequency: 1318.51 },
+            { number: 'v', note: 'F6', frequency: 1396.91 },
+            { number: 'b', note: 'G6', frequency: 1567.98 },
+            { number: 'n', note: 'A6', frequency: 1760.00 }
+        ];
+
+        // O'rgatiladigan qo'shiqlar
+        const songs = [
+            {
+                id: 1,
+                title: "Qo'shiq 1 - Oddiy Melodiya",
+                description: "1-2-3-4-5 raqamlari",
+                notes: [1, 2, 3, 4, 5, 4, 3, 2, 1]
+            },
+            {
+                id: 2,
+                title: "Qo'shiq 2 - Yoshligim",
+                description: "1-3-5-3-1 raqamlari",
+                notes: [1, 3, 5, 3, 1, 3, 5, 3, 1]
+            },
+            {
+                id: 3,
+                title: "Qo'shiq 3 - Sevgi Madhiyasi",
+                description: "5-4-3-2-1 raqamlari",
+                notes: [5, 4, 3, 2, 1, 2, 3, 4, 5]
+            },
+            {
+                id: 4,
+                title: "Qo'shiq 4 - Bahor",
+                description: "3-1-3-5-3 raqamlari",
+                notes: [3, 1, 3, 5, 3, 1, 3, 5, 3]
+            },
+            {
+                id: 5,
+                title: "Qo'shiq 5 - Sayohat",
+                description: "2-4-6-4-2 raqamlari",
+                notes: [2, 4, 6, 4, 2, 4, 6, 4, 2]
+            },
+            {
+                id: 6,
+                title: "Qo'shiq 6 - Bayram",
+                description: "1-5-1-5-1 raqamlari",
+                notes: [1, 5, 1, 5, 1, 5, 1, 5, 1]
+            },
+            {
+                id: 7,
+                title: "Qo'shiq 7 - O'zbekiston",
+                description: "1-2-3-1-5 raqamlari",
+                notes: [1, 2, 3, 1, 5, 4, 3, 2, 1]
+            },
+            {
+                id: 8,
+                title: "Qo'shiq 8 - Sevgi",
+                description: "3-5-3-1-3 raqamlari",
+                notes: [3, 5, 3, 1, 3, 5, 3, 1, 3]
+            },
+            {
+                id: 9,
+                title: "Qo'shiq 9 - Raks",
+                description: "2-3-4-5-4 raqamlari",
+                notes: [2, 3, 4, 5, 4, 3, 2, 3, 4]
+            },
+            {
+                id: 10,
+                title: "Qo'shiq 10 - Final",
+                description: "5-4-3-2-1-2-3-4-5",
+                notes: [5, 4, 3, 2, 1, 2, 3, 4, 5, 4, 3, 2, 1]
+            }
+        ];
+
+        // DOM elementlari
+        const pianoElement = document.getElementById('piano');
+        const numberPianoElement = document.getElementById('numberPiano');
+        const songsListElement = document.getElementById('songsList');
+        const recordBtn = document.getElementById('recordBtn');
+        const stopRecordBtn = document.getElementById('stopRecordBtn');
+        const sendToTelegramBtn = document.getElementById('sendToTelegramBtn');
+        const recordingStatus = document.getElementById('recordingStatus');
+        const muteBtn = document.getElementById('muteBtn');
+        const unmuteBtn = document.getElementById('unmuteBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+        const keyNumberDisplay = document.getElementById('keyNumberDisplay');
+
+        // Pianino klaviaturalarini yaratish
+        function createPiano() {
+            notes.forEach((note, index) => {
+                const keyElement = document.createElement('div');
+                keyElement.className = `key ${note.type}-key`;
+                keyElement.dataset.note = note.note;
+                keyElement.dataset.frequency = note.frequency;
+                keyElement.dataset.key = note.key;
+                keyElement.dataset.index = index + 1;
+
+                const keyNumber = document.createElement('div');
+                keyNumber.className = 'key-number';
+                keyNumber.textContent = index + 1;
+
+                const keyName = document.createElement('div');
+                keyName.className = 'key-name';
+                keyName.textContent = note.key;
+
+                keyElement.appendChild(keyNumber);
+                keyElement.appendChild(keyName);
+
+                // Sichqoncha bosilganda
+                keyElement.addEventListener('mousedown', () => playNote(note.frequency, note.note, index + 1, note.key));
+                keyElement.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    playNote(note.frequency, note.note, index + 1, note.key);
+                });
+
+                // Aktiv holatni olib tashlash
+                keyElement.addEventListener('mouseup', removeActiveState);
+                keyElement.addEventListener('mouseleave', removeActiveState);
+                keyElement.addEventListener('touchend', removeActiveState);
+                keyElement.addEventListener('touchcancel', removeActiveState);
+
+                pianoElement.appendChild(keyElement);
+            });
+        }
+
+        // Raqamli pianino yaratish
+        function createNumberPiano() {
+            // Faqat 20 ta raqamli tugma yaratamiz
+            for (let i = 0; i < 20; i++) {
+                const number = i + 1;
+                const numberKey = document.createElement('div');
+                numberKey.className = 'number-key';
+                numberKey.textContent = number;
+                numberKey.dataset.number = number;
+
+                // Tegishli nota aniqlash
+                const noteInfo = numberNotes[i] || numberNotes[numberNotes.length - 1];
+
+                numberKey.addEventListener('mousedown', () => {
+                    playNote(noteInfo.frequency, noteInfo.note, number, noteInfo.number);
+                    numberKey.classList.add('active');
+                });
+
+                numberKey.addEventListener('mouseup', () => {
+                    numberKey.classList.remove('active');
+                });
+
+                numberKey.addEventListener('mouseleave', () => {
+                    numberKey.classList.remove('active');
+                });
+
+                numberPianoElement.appendChild(numberKey);
+            }
+        }
+
+        // Qo'shiqlar ro'yxatini yaratish
+        function createSongsList() {
+            songs.forEach(song => {
+                const songElement = document.createElement('div');
+                songElement.className = 'song-item';
+                songElement.dataset.id = song.id;
+
+                songElement.innerHTML = `
+                    <div class="song-title">${song.title}</div>
+                    <div class="song-description">${song.description}</div>
+                `;
+
+                songElement.addEventListener('click', () => {
+                    playSong(song);
+                    showNotification(`"${song.title}" qo'shig'i ijro etilmoqda...`);
+
+                    // Barcha song-itemlardan active klassini olib tashlash
+                    document.querySelectorAll('.song-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+
+                    // Faqat tanlangan song-itemga active klassini qo'shish
+                    songElement.classList.add('active');
+                    songElement.style.borderLeftColor = '#38ef7d';
+                });
+
+                songsListElement.appendChild(songElement);
+            });
+        }
+
+        // Nota chalish
+        function playNote(frequency, noteName, keyNumber, keyChar) {
+            if (isMuted) return;
+
+            // Audio kontekstini yoqish (agar u suspended holatda bo'lsa)
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            // Osilator yaratish
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+
+            // Ovozni asta-sekin ochish va yopish
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.5);
+
+            // Tugma bosilganda ikkinchi chiroyli effekt
+            keyNumberDisplay.textContent = `Oxirgi tugma: ${keyNumber} (${noteName})`;
+            keyNumberDisplay.style.background = 'linear-gradient(90deg, #ff7e5f, #feb47b)';
+
+            // Yozib olish jarayonida
+            if (isRecording) {
+                recordedNotes.push({
+                    time: Date.now() - startRecordingTime,
+                    frequency: frequency,
+                    note: noteName,
+                    keyNumber: keyNumber,
+                    keyChar: keyChar
+                });
+            }
+
+            // Faol tugmani ko'rsatish
+            const activeKey = document.querySelector(`.key[data-index="${keyNumber}"]`);
+            if (activeKey) {
+                activeKey.classList.add('active');
+
+                // 300ms dan keyin faollikni olib tashlash
+                setTimeout(() => {
+                    activeKey.classList.remove('active');
+                    keyNumberDisplay.style.background = 'rgba(0, 0, 0, 0.7)';
+                }, 300);
+            }
+
+            // Raqamli pianino tugmasini faollashtirish
+            const numberKey = document.querySelector(`.number-key[data-number="${keyNumber}"]`);
+            if (numberKey) {
+                numberKey.classList.add('active');
+
+                // 300ms dan keyin faollikni olib tashlash
+                setTimeout(() => {
+                    numberKey.classList.remove('active');
+                }, 300);
+            }
+        }
+
+        // Aktiv holatni olib tashlash
+        function removeActiveState(e) {
+            // Faqat oq tugmalar uchun
+            if (e.target.classList.contains('white-key') || e.target.classList.contains('black-key')) {
+                e.target.classList.remove('active');
+            }
+        }
+
+        // Qo'shiqni ijro etish
+        function playSong(song) {
+            activeSong = song;
+            activeSongNotes = song.notes;
+            currentSongIndex = 0;
+
+            // Agar avvalgi interval bo'lsa, to'xtatish
+            if (window.songInterval) {
+                clearInterval(window.songInterval);
+            }
+
+            // Har bir nota uchun interval o'rnatish
+            window.songInterval = setInterval(() => {
+                if (currentSongIndex < activeSongNotes.length) {
+                    const noteNumber = activeSongNotes[currentSongIndex];
+                    const noteInfo = numberNotes[noteNumber - 1] || numberNotes[0];
+
+                    if (noteInfo) {
+                        playNote(noteInfo.frequency, noteInfo.note, noteNumber, noteInfo.number);
+                    }
+
+                    currentSongIndex++;
+                } else {
+                    clearInterval(window.songInterval);
+                    showNotification(`"${song.title}" qo'shig'i tugadi!`);
+                }
+            }, 500); // Har 500ms da bir nota
+        }
+
+        // Yozib olishni boshlash
+        function startRecording() {
+            isRecording = true;
+            recordedNotes = [];
+            startRecordingTime = Date.now();
+
+            recordBtn.disabled = true;
+            stopRecordBtn.disabled = false;
+            recordingStatus.style.display = 'flex';
+
+            // 30 soniyadan keyin avtomatik to'xtatish
+            recordingTimer = setTimeout(() => {
+                stopRecording();
+                showNotification("Yozib olish 30 soniyadan keyin avtomatik ravishda to'xtatildi");
+            }, 30000);
+
+            showNotification("Yozib olish boshlandi! Pianino chalishni boshlang.");
+
+            // Hisoblagich
+            let timeLeft = 30;
+            const countdown = setInterval(() => {
+                timeLeft--;
+                recordingStatus.querySelector('span').textContent = `Yozib olish davom etmoqda... ${timeLeft} soniya qoldi`;
+
+                if (!isRecording) {
+                    clearInterval(countdown);
+                }
+            }, 1000);
+        }
+
+        // Yozib olishni to'xtatish
+        function stopRecording() {
+            isRecording = false;
+
+            recordBtn.disabled = false;
+            stopRecordBtn.disabled = true;
+            sendToTelegramBtn.disabled = false;
+            recordingStatus.style.display = 'none';
+
+            clearTimeout(recordingTimer);
+
+            showNotification(`Yozib olish to'xtatildi. ${recordedNotes.length} nota yozib olindi.`);
+        }
+
+        // Telegramga yuborish (simulyatsiya)
+        function sendToTelegram() {
+            if (recordedNotes.length === 0) {
+                showNotification("Yuborish uchun hech qanday yozib olingan nota yo'q");
+                return;
+            }
+
+            showNotification("Musiqangiz Telegramga yuborilmoqda...");
+
+            // Simulyatsiya - 2 soniyadan keyin muvaffaqiyatli xabar
+            setTimeout(() => {
+                showNotification(`Musiqangiz muvaffaqiyatli Telegramga yuborildi! ${recordedNotes.length} nota yuborildi.`);
+                sendToTelegramBtn.disabled = true;
+            }, 2000);
+        }
+
+        // Barcha ovozni o'chirish
+        function muteAll() {
+            isMuted = true;
+            showNotification("Barcha ovozlar o'chirildi");
+        }
+
+        // Barcha ovozni yoqish
+        function unmuteAll() {
+            isMuted = false;
+            showNotification("Barcha ovozlar yoqildi");
+        }
+
+        // Reset tugmasi
+        function resetAll() {
+            // Yozib olishni to'xtatish
+            if (isRecording) {
+                stopRecording();
+            }
+
+            // Faol qo'shiqni to'xtatish
+            if (window.songInterval) {
+                clearInterval(window.songInterval);
+            }
+
+            // Yozib olingan notalarni tozalash
+            recordedNotes = [];
+            sendToTelegramBtn.disabled = true;
+
+            // Ekranni yangilash
+            keyNumberDisplay.textContent = "Oxirgi tugma: -";
+            keyNumberDisplay.style.background = 'rgba(0, 0, 0, 0.7)';
+
+            // Barcha song-itemlardan active klassini olib tashlash
+            document.querySelectorAll('.song-item').forEach(item => {
+                item.classList.remove('active');
+                item.style.borderLeftColor = '#ff7e5f';
+            });
+
+            showNotification("Barcha sozlamalar qayta tiklandi");
+        }
+
+        // Xabarlarni ko'rsatish
+        function showNotification(message) {
+            notificationText.textContent = message;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Klaviatura hodisalarini qayta ishlash
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toUpperCase();
+
+            // Asosiy pianino uchun
+            const note = notes.find(n => n.key === key);
+            if (note) {
+                e.preventDefault();
+                playNote(note.frequency, note.note, notes.indexOf(note) + 1, note.key);
+            }
+
+            // Raqamli pianino uchun (1-5, q, w, e, r, t, a, s, d, f, z, x, c, v, b, n)
+            const numberNote = numberNotes.find(n => n.number === e.key.toLowerCase());
+            if (numberNote) {
+                e.preventDefault();
+                const numberIndex = numberNotes.indexOf(numberNote) + 1;
+                playNote(numberNote.frequency, numberNote.note, numberIndex, numberNote.number);
+
+                // Raqamli pianino tugmasini faollashtirish
+                const numberKey = document.querySelector(`.number-key[data-number="${numberIndex}"]`);
+                if (numberKey) {
+                    numberKey.classList.add('active');
+
+                    setTimeout(() => {
+                        numberKey.classList.remove('active');
+                    }, 300);
+                }
+            }
+        });
+
+        // Tugmalarga event listenerlar qo'shish
+        recordBtn.addEventListener('click', startRecording);
+        stopRecordBtn.addEventListener('click', stopRecording);
+        sendToTelegramBtn.addEventListener('click', sendToTelegram);
+        muteBtn.addEventListener('click', muteAll);
+        unmuteBtn.addEventListener('click', unmuteAll);
+        resetBtn.addEventListener('click', resetAll);
+
+        // Dasturni ishga tushirish
+        window.onload = function () {
+            createPiano();
+            createNumberPiano();
+            createSongsList();
+
+            // Dastur haqida xabar
+            setTimeout(() => {
+                showNotification("Raqamli Pianhioga xush kelibsiz! Boshlash uchun pianino tugmalarini bosing yoki klaviaturadan foydalaning.");
+            }, 1000);
+        };
+    </script>
+</body>
+
+</html>
